@@ -70,7 +70,7 @@ function enableAudioOnClick() {
     const inicial = escogerCancionRandom();
     sonido.src = inicial;
 
-    // 🔥 Aplicar volumen desde la PRIMERA canción
+    // Aplicar volumen desde la PRIMERA canción
     sonido.volume = 0.8;
   }
 
