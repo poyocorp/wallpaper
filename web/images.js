@@ -146,7 +146,7 @@ function cargarFrases() {
       window.frases = ["no se cargaron las frases", "algo de relleno"]; 
       resolve();
     };
-    console.error('cargados los frases');
+    console.log('cargados los frases');
     document.head.appendChild(script);
   });
 }

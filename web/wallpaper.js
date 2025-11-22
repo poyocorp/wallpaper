@@ -2,13 +2,40 @@
 let desktopMode = false; // Cambia a true para modo escritorio
 
 // ===== AUDIO =====
-let sonido; // Para el mp3
+let sonido; // Referencia al <audio> de HTML
 
 function initAudio() {
   if (desktopMode) return;
-  sonido = new Audio('./assets/kirby.mp3');
-  sonido.loop = true;
+
+  // Obtener el audio del HTML
+  sonido = document.getElementById('bg-audio');
+  if (!sonido) return;
+
+  sonido.src = './assets/kirby.mp3';
   sonido.volume = 0.8;
+  sonido.loop = true;
+
+  // Escuchar si se pausa y reactivar
+  sonido.addEventListener('pause', () => {
+    console.log('Audio pausado, reintentando...');
+    sonido.play().catch(e => console.log("No se pudo reactivar:", e));
+  });
+
+  // Reiniciar si termina (por seguridad)
+  sonido.addEventListener('ended', () => sonido.play());
+}
+
+function enableAudioOnClick() {
+  if (desktopMode) return; // No reproducir en desktopMode
+
+  function reproducir() {
+    if (sonido) {
+      sonido.play().catch(e => console.log("Autoplay bloqueado:", e));
+      document.removeEventListener("click", reproducir);
+    }
+  }
+
+  document.addEventListener("click", reproducir);
 }
 
 // ===== VIDEO / IMAGEN =====
