@@ -11,22 +11,31 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create ZIP of all files
+      - name: Ensure lively wallpaper files exist
         run: |
-          echo "Creando ZIP completo del repositorio..."
-          zip -r wallpaper.zip . -x ".git/*" "*.github/*"
+          echo "Verificando extras/lively-wallpaper..."
+          ls -R extras/lively-wallpaper || echo "⚠️ Carpeta vacía o no encontrada"
+
+      - name: Create ZIP of full repo (excluding some files)
+        run: |
+          echo "Creando ZIP completo sin README.md, .gitattributes ni CNAME..."
+          zip -r wallpaper.zip . \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x "README.md" \
+            -x ".gitattributes" \
+            -x "CNAME"
 
       - name: Create or update release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: wallpaper
           name: Wallpaper
-          draft: false
-          prerelease: false
           files: wallpaper.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
