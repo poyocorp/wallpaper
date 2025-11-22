@@ -34,8 +34,8 @@ jobs:
       - name: Create or update release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: wallpaper
-          name: Wallpaper
+          tag_name: lively-wallpaper
+          name: Lively Wallpaper ZIP
           files: wallpaper.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
