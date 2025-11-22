@@ -2,41 +2,87 @@
 let desktopMode = false; // Cambia a true para modo escritorio
 
 // ===== AUDIO =====
-let sonido; // Referencia al <audio> de HTML
+let sonido; 
+let canciones = [
+  "./assets/songs/dreamland.mp3",
+  "./assets/songs/itembounce.mp3",
+  "./assets/songs/riders.mp3"
+  // more...
+];
+
+let ultimaCancion = null;
+
+// Seleccionar canción aleatoria evitando repetir la última
+function escogerCancionRandom() {
+  if (canciones.length === 0) return null;
+
+  // random seguro, nunca cacheado
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+
+  let index = array[0] % canciones.length;
+  let candidata = canciones[index];
+
+  // evitar repetir la misma si hay más de 1
+  if (canciones.length > 1 && candidata === ultimaCancion) {
+    index = (index + 1) % canciones.length;
+    candidata = canciones[index];
+  }
+
+  ultimaCancion = candidata;
+  return candidata;
+}
 
 function initAudio() {
   if (desktopMode) return;
 
-  // Obtener el audio del HTML
   sonido = document.getElementById('bg-audio');
   if (!sonido) return;
 
-  sonido.src = './assets/kirby.mp3';
-  sonido.volume = 0.8;
-  sonido.loop = true;
+  sonido.loop = false; // Ya no usamos loop, porque queremos cambiar de canción
 
-  // Escuchar si se pausa y reactivar
-  sonido.addEventListener('pause', () => {
-    console.log('Audio pausado, reintentando...');
-    sonido.play().catch(e => console.log("No se pudo reactivar:", e));
+  // Primera canción aleatoria
+  const inicial = escogerCancionRandom();
+  sonido.src = inicial;
+
+  // Cuando termina → siguiente canción aleatoria
+  sonido.addEventListener("ended", () => {
+    const nueva = escogerCancionRandom();
+
+    if (nueva) {
+      sonido.src = nueva;
+
+      sonido.volume = 0.8;
+    }
+
+    sonido.play().catch(e => console.log("No pudo reproducir nueva canción:", e));
   });
 
-  // Reiniciar si termina (por seguridad)
-  sonido.addEventListener('ended', () => sonido.play());
 }
 
+// ===== REPRODUCIR AL CLICK =====
 function enableAudioOnClick() {
-  if (desktopMode) return; // No reproducir en desktopMode
+  if (desktopMode) return;
 
   function reproducir() {
-    if (sonido) {
-      sonido.play().catch(e => console.log("Autoplay bloqueado:", e));
-      document.removeEventListener("click", reproducir);
-    }
+
+  if (!sonido.src) {
+    const inicial = escogerCancionRandom();
+    sonido.src = inicial;
+
+    // 🔥 Aplicar volumen desde la PRIMERA canción
+    sonido.volume = 0.8;
   }
+
+  sonido.play().catch(e => console.log("Autoplay bloqueado:", e));
+  document.removeEventListener("click", reproducir);
+}
 
   document.addEventListener("click", reproducir);
 }
+
+
+
 
 // ===== VIDEO / IMAGEN =====
 function setupBackground() {
@@ -66,18 +112,4 @@ function setupBackground() {
       });
     }
   }
-}
-
-// ===== REPRODUCIR AUDIO AL CLICK =====
-function enableAudioOnClick() {
-  if (desktopMode) return; // No reproducir en desktopMode
-
-  function reproducir() {
-    if (sonido) {
-      sonido.play().catch(e => console.log("Autoplay bloqueado:", e));
-      document.removeEventListener("click", reproducir);
-    }
-  }
-
-  document.addEventListener("click", reproducir);
 }
