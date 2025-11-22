@@ -1,4 +1,4 @@
-name: Create ZIP & Update Release
+name: Lively Wallpaper ZIP
 
 on:
   push:
