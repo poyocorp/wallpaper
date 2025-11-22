@@ -1,331 +1,49 @@
 <!DOCTYPE html>
-  <!-- En vez de emborracharme codeo estas cosas, 
-  da más dolor de cabeza así que creo que mejor -->
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Soggy Cat - Wallpaper</title>
-  <link rel="icon" type="image/gif" href="assets/favicon.gif">
-  <link rel="stylesheet" href="animations.css">
+  <title>SproutPoyo - Wallpaper</title>
+  <link rel="icon" type="image/png" href="./web/favicon.png">
+  <link rel="stylesheet" href="./web/animations.css">
+  <link rel="stylesheet" href="./web/video.css">
+  <script src="./web/images.js"></script>
+  <script src="./web/wallpaper.js"></script>
 </head>
 <body>
   <div class="loading-indicator" id="loadingIndicator">Cargando...</div>
 
-<script>
-  // Configuración de música
-  const musicConfig = {
-    songs: [
-      { file: "./song/cats.mp3", probability: 1 },
-      { file: "./song/cats-remix.mp3", probability: 1 },
-      { file: "./song/cats-speedup.mp3", probability: 0 }
-    ],
-    currentSong: null,
-    isPlaying: false,
-    isSpeedupActive: false
-  };
+  <video autoplay muted loop playsinline id="bg-video">
+    <source src="./assets/riders.mp4" type="video/mp4">
+  </video>
 
-  //let assets = []; => assets.js
-  let music = null;
-  let meowSound, meowImg;
-  let bolas = [];
 
-  const minBolas = 20;
-  const maxBolas = 30;
+  <div class="contenido">
+>  <script>
+    // ===== INICIO =====
+      async function iniciar() {
+        await cargarAssets();
+        await cargarFrases();
 
-  const frases = [
-    "wet",
-    "get sogged", 
-    "next fate: bath"
-  ];
+        setupBackground();
+        initAudio();
+        enableAudioOnClick();
 
-  // Load assets file
-	function cargarAssets() {
-		return new Promise((resolve) => {
-			const script = document.createElement('script');
-			script.src = 'sog-index.js';
-			script.onload = () => {
-				console.log('Sogs loaded:', assets.length);
-				resolve();
-			};
-			script.onerror = () => {
-				console.error('Error loading assets.js :c');
-				assets = ["https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Bsodwindows10.png/1200px-Bsodwindows10.png"];
-				resolve();
-			};
-			document.head.appendChild(script);
-		});
-	}
-
-  function reproducirMusicaAleatoria() {
-    if (music) {
-      music.pause();
-      music = null;
-    }
-
-    // Si está activo el speedup, no cambiar la música
-    if (musicConfig.isSpeedupActive) return;
-
-    const cancionesDisponibles = musicConfig.songs.filter(song => song.probability > 0);
-    if (cancionesDisponibles.length === 0) return;
-
-    const totalProbabilidad = cancionesDisponibles.reduce((sum, song) => sum + song.probability, 0);
-    let randomNum = Math.random() * totalProbabilidad;
-    
-    let cancionSeleccionada = cancionesDisponibles[0];
-    
-    for (const cancion of cancionesDisponibles) {
-      if (randomNum < cancion.probability) {
-        cancionSeleccionada = cancion;
-        break;
-      }
-      randomNum -= cancion.probability;
-    }
-
-    musicConfig.currentSong = cancionSeleccionada.file;
-    music = new Audio(cancionSeleccionada.file);
-    music.loop = true;
-    music.volume = 1.0;
-    
-    music.play().catch(err => {
-      console.log("Error reproduciendo música:", err);
-    });
-    
-    musicConfig.isPlaying = true;
-    console.log("Reproduciendo:", cancionSeleccionada.file);
-  }
-
-  function reproducirSpeedup() {
-    if (music) {
-      music.pause();
-      music = null;
-    }
-
-    musicConfig.isSpeedupActive = true;
-    musicConfig.currentSong = "./song/cats-speedup.mp3";
-    music = new Audio("./song/cats-speedup.mp3");
-    music.loop = true;
-    music.volume = 1.0;
-    
-    music.play().catch(err => {
-      console.log("Error reproduciendo speedup:", err);
-    });
-    
-    musicConfig.isPlaying = true;
-    console.log("Reproduciendo: cats-speedup.mp3 (boost activo)");
-  }
-
-  function finalizarSpeedup() {
-    musicConfig.isSpeedupActive = false;
-    if (music) {
-      music.pause();
-      music = null;
-    }
-    console.log("Boost terminado, volviendo a música aleatoria");
-    reproducirMusicaAleatoria();
-  }
-
-  // Cargar meow desde archivo MP3
-  function crearMeowSound() {
-    meowSound = new Audio("./song/meow.mp3");
-    meowSound.volume = 0.2;
-    
-    // Manejar error de carga
-    meowSound.onerror = function() {
-      console.error("Error cargando meow.mp3");
-    };
-  }
-
-  function crearTexto() {
-    const div = document.createElement("div");
-    div.className = "texto-loco";
-    div.innerText = frases[Math.floor(Math.random() * frases.length)];
-    div.style.left = Math.random() * window.innerWidth + "px";
-    div.style.top = Math.random() * window.innerHeight + "px";
-    document.body.appendChild(div);
-    setTimeout(() => div.remove(), 3000);
-  }
-
-  function crearMeowVisual() {
-    if (!meowImg) {
-      meowImg = document.createElement("img");
-      meowImg.className = "meow-cat";
-      document.body.appendChild(meowImg);
-    }
-    
-    if (assets.length > 0) {
-      meowImg.src = assets[Math.floor(Math.random() * assets.length)];
-      meowImg.className = "meow-cat show";
-
-      if (meowSound) {
-        meowSound.currentTime = 0;
-        meowSound.play().catch(() => {});
-      }
-
-      setTimeout(() => {
-        meowImg.classList.remove("show");
-      }, 700);
-    }
-  }
-
-  function crearBola(src) {
-    const img = document.createElement("img");
-    img.src = src;
-    img.className = "soggy-img";
-    img.style.opacity = "0.8";
-    const size = 100 + Math.random() * 150;
-    img.style.width = size + "px";
-    document.body.appendChild(img);
-
-    const bola = {
-      el: img,
-      x: Math.random() * (window.innerWidth - size),
-      y: Math.random() * (window.innerHeight - size),
-      vx: (Math.random() - 0.5) * 8,
-      vy: (Math.random() - 0.5) * 8,
-      size: size
-    };
-    bolas.push(bola);
-  }
-
-  function actualizarBolas() {
-    const currentCount = bolas.length;
-
-    if (currentCount < maxBolas && Math.random() < 0.6 && assets.length > 0) {
-      const src = assets[Math.floor(Math.random() * assets.length)];
-      crearBola(src);
-    }
-
-    if (currentCount > minBolas && Math.random() < 0.4) {
-      const idx = Math.floor(Math.random() * bolas.length);
-      const bola = bolas[idx];
-      bola.el.remove();
-      bolas.splice(idx, 1);
-    }
-  }
-
-  function animar() {
-    bolas.forEach(b => {
-      b.x += b.vx;
-      b.y += b.vy;
-      if (b.x <= 0 || b.x + b.size >= window.innerWidth) b.vx *= -1;
-      if (b.y <= 0 || b.y + b.size >= window.innerHeight) b.vy *= -1;
-      b.el.style.left = b.x + "px";
-      b.el.style.top = b.y + "px";
-    });
-    requestAnimationFrame(animar);
-  }
-
-  function boostBolasTemporales() {
-    const boostAmount = 10;
-    const tempBolas = [];
-
-    // Reproducir speedup al iniciar el boost
-    reproducirSpeedup();
-
-    for (let i = 0; i < boostAmount && assets.length > 0; i++) {
-      const src = assets[Math.floor(Math.random() * assets.length)];
-      const img = document.createElement("img");
-      img.src = src;
-      img.className = "soggy-img";
-      img.style.opacity = "0.8";
-      const size = 100 + Math.random() * 150;
-      img.style.width = size + "px";
-      document.body.appendChild(img);
-
-      const bola = {
-        el: img,
-        x: Math.random() * (window.innerWidth - size),
-        y: Math.random() * (window.innerHeight - size),
-        vx: (Math.random() - 0.5) * 10,
-        vy: (Math.random() - 0.5) * 10,
-        size: size,
-        temporal: true
-      };
-      tempBolas.push(bola);
-    }
-
-    function animarBoost() {
-      tempBolas.forEach(b => {
-        b.x += b.vx;
-        b.y += b.vy;
-        if (b.x <= 0 || b.x + b.size >= window.innerWidth) b.vx *= -1;
-        if (b.y <= 0 || b.y + b.size >= window.innerHeight) b.vy *= -1;
-        b.el.style.left = b.x + "px";
-        b.el.style.top = b.y + "px";
-      });
-      if (tempBolas.length) {
-        requestAnimationFrame(animarBoost);
-      }
-    }
-
-    animarBoost();
-
-    // Eliminar bolas temporales después de 6 segundos
-    setTimeout(() => {
-      tempBolas.forEach(b => b.el.remove());
-      
-      // Finalizar el speedup y volver a música aleatoria
-      finalizarSpeedup();
-    }, 6000);
-  }
-
-  function loadingFunction() {
-    const loading = document.getElementById("loadingIndicator");
-    if (loading) {
-      loading.style.transition = "opacity 0.5s ease";
-      loading.style.opacity = "0";
-      setTimeout(() => loading.remove(), 600);
-    }
-  }
-
-  async function iniciar() {
-    await cargarAssets();
-    
-    const initialCount = minBolas + Math.floor(Math.random() * (maxBolas - minBolas));
-    for (let i = 0; i < initialCount && assets.length > 0; i++) {
-      const src = assets[Math.floor(Math.random() * assets.length)];
-      crearBola(src);
-    }
-
-    // Random music moment
-    setTimeout(() => {
-      reproducirMusicaAleatoria();
-    }, 1000);
-
-    setInterval(() => {
-      if (Math.random() < 0.25) crearTexto();
-    }, 5000);
-
-    setInterval(() => {
-      if (Math.random() < 0.5) crearMeowVisual();
-    }, 8000);
-
-    setInterval(actualizarBolas, 3000);
-
-    // Cambiar música aleatoriamente cada cierto tiempo (solo si no está activo el speedup)
-    setInterval(() => {
-      if (musicConfig.isPlaying && 
-          !musicConfig.isSpeedupActive && 
-          musicConfig.currentSong !== "./song/cats-speedup.mp3") {
-        if (Math.random() < 0.3) {
-          reproducirMusicaAleatoria();
+        const initialCount = minBolas + Math.floor(Math.random() * (maxBolas - minBolas));
+        for (let i = 0; i < initialCount && assets.length > 0; i++) {
+          const src = assets[Math.floor(Math.random() * assets.length)];
+          crearBola(src);
         }
+
+        setInterval(() => { if (Math.random() < 0.25) crearTexto(); }, 5000);
+        setInterval(actualizarBolas, 3000);
+        animar();
+        loadingFunction();
       }
-    }, 30000);
 
-    animar();
-    loadingFunction();
-  }
+      window.onload = iniciar;
+      document.body.addEventListener("click", boostBolasTemporales);
+    </script>
+  </div>
 
-  window.onload = async () => {
-    crearMeowSound();
-    await iniciar();
-  };
-
-  document.body.addEventListener("click", () => {
-    // Click = More sogs
-    boostBolasTemporales();
-  });
-</script>
 </body>
 </html>

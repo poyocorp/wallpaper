@@ -1,0 +1,19 @@
+/* Vídeo a pantalla completa */
+#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;   /* Ajusta el video sin deformarlo */
+    z-index: -1;         /* Manda el video al fondo */
+}
+
+/* Contenido sobre el video */
+.contenido {
+    position: relative;
+    z-index: 2;
+    color: white;
+    text-align: center;
+    padding: 100px 20px;
+}
