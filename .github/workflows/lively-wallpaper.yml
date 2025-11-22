@@ -1,0 +1,45 @@
+name: Create ZIP & Update Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: changes
+        run: |
+          # Obtiene los archivos del último commit
+          echo "CHANGED_FILES<<EOF" >> $GITHUB_ENV
+          git diff --name-only HEAD~1 HEAD >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          echo "Changed files:"
+          git diff --name-only HEAD~1 HEAD
+
+      - name: Create ZIP of changed files
+        run: |
+          zip -r wallpaper.zip ${{ env.CHANGED_FILES }}
+
+      - name: Get or create release
+        id: release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: wallpaper
+          name: Wallpaper
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload ZIP to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: wallpaper.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
