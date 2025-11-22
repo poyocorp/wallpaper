@@ -6,6 +6,7 @@
   "./imgs/230168816577937409.webp",
   "./imgs/3244270.png",
   "./imgs/448600483670523924.webp",
+  "./imgs/718rEWLGJNL._AC_SX569_.jpg",
   "./imgs/7dc683331f25b0ff3cec6ef0c2e962d1.png",
   "./imgs/assets_task_01k6k9yavaftm95hw7d8bw42en_1759437197_img_0.webp",
   "./imgs/bestie-besties.gif",
